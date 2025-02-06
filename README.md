@@ -1,4 +1,4 @@
-# Pi OLED Display
+Pi OLED Display
 
 A small project to display live system stats on an OLED screen using a Raspberry Pi. The display shows the Pi's local IP address and real-time system performance, such as CPU usage and memory stats.
 
@@ -20,9 +20,9 @@ A small project to display live system stats on an OLED screen using a Raspberry
 
 1. **Clone this repository**:
    ```bash
-   git clone https://github.com/yourusername/pi-oled-display.git
-   cd pi-oled-display
-	```
+   	git clone https://github.com/yourusername/pi-oled-display.git
+	cd pi-oled-display
+   ```
 2. **Build and start the Docker container:**
 	```bash
 	docker-compose up --build -d
@@ -30,8 +30,8 @@ A small project to display live system stats on an OLED screen using a Raspberry
 3. **Ensure the I2C interface is enabled on your Raspberry Pi:**
 	- Open raspi-config:
 	```bash
-		sudo raspi-config
-		```
+	sudo raspi-config
+	```
 	- Navigate to Interfacing Options → I2C → Enable.
 	- Reboot the Raspberry Pi
 4. **Connect your OLED display to the Raspberry Pi's I2C pins (SCL and SDA).**
@@ -47,8 +47,9 @@ Once the container is running, the system stats will be displayed on your OLED s
 
 ## Dependencies
 - psutil – For gathering system stats.
-- Adafruit_SSD1306 – For controlling the OLED display.
 - RPi.GPIO – For GPIO interaction
+- luma.oled – For controlling the OLED display
+- Pillow – For image handling (used by luma.oled).
 - docker – To run the application inside a container.
 
 ## License
