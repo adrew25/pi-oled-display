@@ -1,0 +1,13 @@
+services:
+  i2c_display:
+    build: .
+    container_name: i2c_display
+    privileged: true
+    network_mode: "host"
+    devices:
+      - "/dev/i2c-1:/dev/i2c-1"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python display.py
+
