@@ -1,13 +1,11 @@
 import os
 import psutil
 import socket
-import fcntl
-import struct
 from time import sleep
 from luma.oled.device import ssd1306
 from luma.core.interface.serial import i2c
 from luma.core.render import canvas
-from PIL import ImageFont, ImageDraw, Image
+from PIL import ImageFont
 
 # Setup I2C OLED Display
 serial = i2c(port=1, address=0x3C)
@@ -16,29 +14,16 @@ device = ssd1306(serial)
 # Load a basic font
 font = ImageFont.load_default()
 
-def get_ip():
-    """Get the Raspberry Pi's local IP address."""
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-        s.close()
-    except:
-        ip = "No IP"
-    return ip
-
-
 def get_local_ip():
-    """Get the Raspberry Pi's actual local network IP."""
+    """Get the Raspberry Pi's actual local IPv4 address."""
     try:
-        # Check for Wi-Fi IP first
-        ip = os.popen("ip a show wlan0 | grep inet | awk '{print $2}' | cut -d/ -f1").read().strip()
-        if not ip:  # Fallback to Ethernet IP if no Wi-Fi
-            ip = os.popen("ip a show eth0 | grep inet | awk '{print $2}' | cut -d/ -f1").read().strip()
-        return ip if ip else "No IP"
+        # Get the IP from the wlan0 (Wi-Fi) or eth0 (Ethernet) interface
+        ip = os.popen("hostname -I | awk '{print $1}'").read().strip()
+        if not ip:
+            ip = "No IP"
+        return ip
     except:
         return "No IP"
-
 
 def get_cpu_temp():
     """Get CPU temperature."""
@@ -56,12 +41,21 @@ while True:
     temp = get_cpu_temp()
     ip_address = get_local_ip()
 
-    # Create an image buffer
+    # Clear the display before writing new content
+    #device.clear()
+
+    # Format the values to ensure they fit
+    cpu_usage_str = f"CPU: {cpu_usage:.1f}%"
+    ram_usage_str = f"RAM: {ram_usage:.1f}%"
+    temp_str = f"Temp: {temp}"
+
+    # Create an image buffer and write to the OLED
     with canvas(device) as draw:
+        # Adjust the starting positions and line spacing
         draw.text((5, 0), f"IP: {ip_address}", font=font, fill="white")
-        draw.text((5, 12), f"CPU: {cpu_usage:.1f}%", font=font, fill="white")
-        draw.text((5, 24), f"RAM: {ram_usage:.1f}%", font=font, fill="white")
-        draw.text((5, 36), f"Temp: {temp}", font=font, fill="white")
+        draw.text((5, 16), cpu_usage_str[:16], font=font, fill="white")  # Limit to 16 chars
+        draw.text((5, 32), ram_usage_str[:16], font=font, fill="white")  # Limit to 16 chars
+        draw.text((5, 48), temp_str[:16], font=font, fill="white")  # Limit to 16 chars
 
     sleep(2)  # Update every 2 seconds
 
